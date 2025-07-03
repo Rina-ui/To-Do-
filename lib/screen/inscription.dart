@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:todo_flutter_app/screen/connexion.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'home.dart';
 
 class Inscription extends StatefulWidget {
   const Inscription({super.key});
@@ -11,6 +15,44 @@ class Inscription extends StatefulWidget {
 class _InscriptionState extends State<Inscription> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  //function to register
+  Future<void> register() async {
+    final url = Uri.parse('http://10.0.2.2:3000/api/user/register');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': usernameController.text,
+        'password': passwordController.text,
+      })
+    );
+
+    if (response.statusCode == 200){
+      final data = jsonDecode(response.body);
+      print ('Registration successful: $data');
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Home())
+      );
+    }else{
+      print('Registration failded: ${response.statusCode}');
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Resgistration failed'),
+            content: Text('Registration failed. Please try again'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK')
+              )
+            ],
+          )
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -136,12 +136,7 @@ class _ConnexionState extends State<Connexion> {
                   SizedBox(height: 20,),
 
                   ElevatedButton(
-                      onPressed: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Home())
-                        )
-                      },
+                      onPressed: login,
                       child: Text("Login")
                   ),
 
