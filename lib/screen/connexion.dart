@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_flutter_app/screen/home.dart';
 
 import 'inscription.dart';
 
@@ -72,7 +73,7 @@ class _ConnexionState extends State<Connexion> {
                       onPressed: () => {
                         Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Connexion())
+                            MaterialPageRoute(builder: (context) => Home())
                         )
                       },
                       child: Text("Login")
