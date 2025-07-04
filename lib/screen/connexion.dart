@@ -27,7 +27,7 @@ class _ConnexionState extends State<Connexion> {
       }),
     );
 
-    if(response.statusCode == 200){
+    if(response.statusCode == 200 || response.statusCode == 201){
       final data = jsonDecode(response.body);
       print('Login successful: $data');
 

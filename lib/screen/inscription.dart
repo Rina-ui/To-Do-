@@ -28,7 +28,7 @@ class _InscriptionState extends State<Inscription> {
       })
     );
 
-    if (response.statusCode == 200){
+    if (response.statusCode == 200 || response.statusCode == 201){
       final data = jsonDecode(response.body);
       print ('Registration successful: $data');
 
@@ -114,12 +114,7 @@ class _InscriptionState extends State<Inscription> {
                   SizedBox(height: 20,),
 
                   ElevatedButton(
-                      onPressed: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Inscription())
-                        )
-                      },
+                      onPressed: register,
                       child: Text("Register")
                   ),
 
