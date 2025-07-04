@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -8,6 +12,33 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  Future<void> addTask(String title, String description, String token) async{
+    final url = Uri.parse('http://10.0.2.2:3000/api/task');
+
+    try{
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode({
+          'title': title,
+          'descritption': description
+        }),
+      );
+
+      if(response.statusCode == 200 || response.statusCode == 201){
+        print('Task added successfully');
+      }else{
+        print('Failed to add task: ${response.body}');
+      }
+    }catch(e){
+      print('Error adding task: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +64,7 @@ class _HomeState extends State<Home> {
                       MaterialPageRoute(builder: (context) => Home())
                   )
                 },
-                child: Text('Ajouter une tache')
+                child: Text('Add a task')
             )
           ],
         ),
