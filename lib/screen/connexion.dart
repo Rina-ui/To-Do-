@@ -3,6 +3,7 @@ import 'package:todo_flutter_app/screen/home.dart';
 import 'inscription.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Connexion extends StatefulWidget {
   const Connexion({super.key});
@@ -14,71 +15,96 @@ class Connexion extends StatefulWidget {
 class _ConnexionState extends State<Connexion> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   //function to login
   Future<void> login() async{
-    final url = Uri.parse('http://10.0.2.2:3000/api/user/login');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': usernameController.text,
-        'password': passwordController.text,
-      }),
+    final username = usernameController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty){
+      _showError('Please enter a username and password');
+      return;
+    }
+    setState( () => isLoading = true);
+    try {
+      final url = Uri.parse('http://10.0.2.2:3000/api/user/login');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201){
+        final data = jsonDecode(response.body);
+        final token = data['token'] as String?;
+
+        if (token != null){
+          _showError('Login successful but not receive token');
+        }else{
+          //stocker le token
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('jwt_token', token!);
+
+          // Navigate to Home
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => Home()),
+          );
+        }
+      }else if (response.statusCode == 401 || response.statusCode == 404) {
+        _showLoginNotFoundDialog();
+      } else {
+        _showError('Erreur serveur (${response.statusCode})');
+      }
+    }catch (e) {
+      _showError('Erreur réseau, vérifiez votre connexion');
+    } finally {
+      setState(() => isLoading = false);
+    }
+    }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Erreur'),
+        content: Text(message),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+      ),
     );
-
-    if(response.statusCode == 200 || response.statusCode == 201){
-      final data = jsonDecode(response.body);
-      print('Login successful: $data');
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Home())
-      );
-    }else if (response.statusCode == 404) {
-      //if user not create his account
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('User not found'),
-            content: Text('User not found. Please create your account'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel')
-              ),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Inscription()),
-                  );
-                },
-                child: Text('Register'),
-              )
-
-            ]
-          )
-      );
-    }
-    else{
-      print('Login failed: ${response.statusCode}');
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Login failed'),
-            content: Text('Login failed. Please check your username and password and verified yours informations'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('OK')
-              )
-            ],
-          )
-      );
-    }
   }
+
+  void _showLoginNotFoundDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Utilisateur non trouvé'),
+        content: Text("Aucun compte ne correspond à ces identifiants."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // ferme le dialog
+              Navigator.push(context, MaterialPageRoute(builder: (_) => Inscription()));
+            },
+            child: Text('S’inscrire'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,36 +137,41 @@ class _ConnexionState extends State<Connexion> {
                         fontStyle: FontStyle.italic
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   TextField(
                     controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Username",
+                      prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   TextField(
                     controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Password",
+                      prefixIcon: Icon(Icons.lock),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                   ),
 
-                  SizedBox(height: 20,),
+                  SizedBox(height: 10,),
 
-                  ElevatedButton(
+                  isLoading
+                      ? CircularProgressIndicator()
+                      : ElevatedButton.icon(
                       onPressed: login,
-                      child: Text("Login")
+                      icon: Icon(Icons.login),
+                      label: Text('Login'),
                   ),
 
-                  SizedBox(height: 10,),
+                  SizedBox(height: 5,),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

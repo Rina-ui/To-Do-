@@ -86,7 +86,7 @@ class _InscriptionState extends State<Inscription> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
 
                   TextField(
                     controller: usernameController,
@@ -98,7 +98,7 @@ class _InscriptionState extends State<Inscription> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
 
                   TextField(
                     controller: passwordController,
@@ -111,14 +111,14 @@ class _InscriptionState extends State<Inscription> {
                     ),
                   ),
 
-                  SizedBox(height: 20,),
+                  SizedBox(height: 10,),
 
                   ElevatedButton(
                       onPressed: register,
                       child: Text("Register")
                   ),
 
-                  SizedBox(height: 10,),
+                  SizedBox(height: 5,),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
