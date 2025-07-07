@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Screentask extends StatefulWidget {
   const Screentask({super.key});
@@ -14,8 +16,17 @@ class _ScreentaskState extends State<Screentask> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
+
   Future<void> addTask(String title, String description, String token) async{
     final url = Uri.parse('http://10.0.2.2:3000/api/task');
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    if (token == null) {
+      // not connected !
+      return;
+    }
 
     try{
       final response = await http.post(

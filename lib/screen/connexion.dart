@@ -42,12 +42,12 @@ class _ConnexionState extends State<Connexion> {
         final data = jsonDecode(response.body);
         final token = data['token'] as String?;
 
-        if (token != null){
+        if (token == null){
           _showError('Login successful but not receive token');
         }else{
           //stocker le token
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('jwt_token', token!);
+          await prefs.setString('jwt_token', token);
 
           // Navigate to Home
           Navigator.pushReplacement(
@@ -60,10 +60,12 @@ class _ConnexionState extends State<Connexion> {
       } else {
         _showError('Erreur serveur (${response.statusCode})');
       }
-    }catch (e) {
-      _showError('Erreur réseau, vérifiez votre connexion');
+    }catch (e, stack) {
+    print('Login exception: $e');
+    print(stack);
+    _showError('Erreur : $e');
     } finally {
-      setState(() => isLoading = false);
+    setState(() => isLoading = false);
     }
     }
 
@@ -82,16 +84,16 @@ class _ConnexionState extends State<Connexion> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Utilisateur non trouvé'),
-        content: Text("Aucun compte ne correspond à ces identifiants."),
+        title: Text('User not found'),
+        content: Text("Account don't correspond to any user."),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Annuler')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // ferme le dialog
               Navigator.push(context, MaterialPageRoute(builder: (_) => Inscription()));
             },
-            child: Text('S’inscrire'),
+            child: Text('Login'),
           ),
         ],
       ),
