@@ -92,6 +92,7 @@ class _InscriptionState extends State<Inscription> {
                     controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Username",
+                      prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -105,6 +106,7 @@ class _InscriptionState extends State<Inscription> {
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Password",
+                      prefixIcon: Icon(Icons.lock),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -113,9 +115,10 @@ class _InscriptionState extends State<Inscription> {
 
                   SizedBox(height: 10,),
 
-                  ElevatedButton(
+                  ElevatedButton.icon(
                       onPressed: register,
-                      child: Text("Register")
+                      icon: Icon(Icons.app_registration),
+                      label: Text('Register'),
                   ),
 
                   SizedBox(height: 5,),
