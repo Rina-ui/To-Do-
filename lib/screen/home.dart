@@ -15,6 +15,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
+  //function to get tasks
   Future<List<Task>> getTasks() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token') ?? '';
@@ -36,6 +37,33 @@ class _HomeState extends State<Home> {
       throw Exception('Failed to load tasks');
     }
   }
+
+  // function to delete task
+  Future<void> deleteTask(String taskId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    final url = Uri.parse('http://10.0.2.2:3000/api/task/:id');
+
+    final res = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      }
+    );
+
+    if (res.statusCode == 200 || res.statusCode == 201){
+      //refresh the list
+      setState(() {});
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Deleting error'))
+      );
+    }
+  }
+
+  // function to edit task
+
 
   @override
   Widget build(BuildContext context) {
