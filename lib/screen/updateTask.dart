@@ -1,7 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import '../pages/task.dart';
 
 class Updatetask extends StatefulWidget {
-  const Updatetask({super.key});
+  final Task task;
+  const Updatetask({super.key, required this.task});
 
   @override
   State<Updatetask> createState() => _UpdatetaskState();
@@ -10,6 +16,35 @@ class Updatetask extends StatefulWidget {
 class _UpdatetaskState extends State<Updatetask> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  @override
+  void initState(){
+    super.initState();
+    titleController.text = widget.task.title;
+    descriptionController.text = widget.task.description;
+  }
+
+  Future<void> updateTask() async{
+    final url = Uri.parse('http://10.0.2.2:3000/api/task/:id');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    final res = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'title' : titleController.text,
+        'description' : descriptionController.text,
+      }),
+    );
+
+    if (res.statusCode == 200 || res.statusCode == 201);
+    else ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Updating error'))
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +101,6 @@ class _UpdatetaskState extends State<Updatetask> {
             ],
           ),
         )
-    );;
+    );
   }
 }

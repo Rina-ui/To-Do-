@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_flutter_app/screen/screenTask.dart';
+import 'package:todo_flutter_app/screen/updateTask.dart';
 
 import '../pages/task.dart';
 
@@ -63,7 +64,12 @@ class _HomeState extends State<Home> {
   }
 
   // function to edit task
-
+ void editTask(BuildContext context, Task) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Updatetask(task: task))
+    ).then((_) => setState(() {}));
+ }
 
   @override
   Widget build(BuildContext context) {
