@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_flutter_app/screen/screenTask.dart';
-import 'package:todo_flutter_app/screen/updateTask.dart';
+import 'package:todo_flutter_app/screen/UpdateTask.dart';
 
 import '../pages/task.dart';
 
@@ -40,10 +40,10 @@ class _HomeState extends State<Home> {
   }
 
   // function to delete task
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTask(BuildContext context, String id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    final url = Uri.parse('http://10.0.2.2:3000/api/task/:id');
+    final url = Uri.parse('http://10.0.2.2:3000/api/task/$id');
 
     final res = await http.delete(
       url,
@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
  void editTask(BuildContext context, Task) {
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Updatetask(task: task))
+        MaterialPageRoute(builder: (context) => Updatetask(task: Task,))
     ).then((_) => setState(() {}));
  }
 
@@ -132,11 +132,33 @@ class _HomeState extends State<Home> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                    onPressed: () => {},
+                                    onPressed: () => editTask(context, task),
                                     icon: Icon(Icons.edit)
                                 ),
                                 IconButton(
-                                    onPressed: () => {},
+                                    onPressed: () async {
+                                      final confirm = await showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: Text('Confirm deletion'),
+                                            content: Text('Are you sure to want to delete this task?'),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: Text('Cancel')
+                                              ),
+                                              TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: Text('Delete')
+                                              )
+                                            ],
+                                          )
+                                      );
+
+                                      if (confirm == true) {
+                                        deleteTask(context, task.id);
+                                      }
+                                    },
                                     icon: Icon(Icons.delete)
                                 )
                               ],

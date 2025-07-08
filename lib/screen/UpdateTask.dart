@@ -24,10 +24,11 @@ class _UpdatetaskState extends State<Updatetask> {
     descriptionController.text = widget.task.description;
   }
 
-  Future<void> updateTask() async{
-    final url = Uri.parse('http://10.0.2.2:3000/api/task/:id');
+  Future<void> updateTask() async {
+    final url = Uri.parse('http://10.0.2.2:3000/api/task/${widget.task.id}');
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
+
     final res = await http.put(
       url,
       headers: {
@@ -35,16 +36,23 @@ class _UpdatetaskState extends State<Updatetask> {
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
-        'title' : titleController.text,
-        'description' : descriptionController.text,
+        'title': titleController.text,
+        'description': descriptionController.text,
       }),
     );
 
-    if (res.statusCode == 200 || res.statusCode == 201);
-    else ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Updating error'))
-    );
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Task updated successfully')),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Updating task failed')),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +94,8 @@ class _UpdatetaskState extends State<Updatetask> {
               SizedBox(height: 5),
 
               ElevatedButton.icon(
-                onPressed: () {
-
-                },
-                icon: Icon(Icons.save),
+                onPressed: () => updateTask(),
+                icon: Icon(Icons.save_as_rounded),
                 label: Text('Modify'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(20, 45),
