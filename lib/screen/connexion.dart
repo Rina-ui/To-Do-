@@ -93,7 +93,7 @@ class _ConnexionState extends State<Connexion> {
               Navigator.pop(context); // ferme le dialog
               Navigator.push(context, MaterialPageRoute(builder: (_) => Inscription()));
             },
-            child: Text('Login'),
+            child: Text('Register'),
           ),
         ],
       ),
